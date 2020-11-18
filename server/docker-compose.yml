@@ -11,6 +11,14 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - 5432:5432
+  redis:
+    image: redis
+    container_name: cache
+    restart: always
+    volumes:
+      - /redis-data:/var/lib/redis
+    ports:
+      - 6379:6379
   adminer:
     depends_on:
       - db
