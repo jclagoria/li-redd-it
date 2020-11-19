@@ -1,6 +1,5 @@
 import { Options } from '@mikro-orm/core';
 
-import {Post} from "./entities/Post";
 
 import {__prod__} from "./constants";
 import path from "path";
@@ -10,7 +9,7 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 const mikroOrmConfig: Options =  {
-    entities: [Post],
+    entities: ['./entities/*.ts'],
     dbName: process.env.POSTGRES_DB,
     type: 'postgresql',
     password: process.env.POSTGRES_PASSWORD,

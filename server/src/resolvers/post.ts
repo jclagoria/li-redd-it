@@ -9,7 +9,7 @@ export class PostResolver {
 
     @Query(() => [Post])
     allPosts(@Ctx() {em}: MyContext): Promise<Post[]> {
-        return em.find(Post, {});
+        return em.find(Post, {disabled:false, deleteAt: null});
     }
 
     @Query(() => Post, {nullable: true})
@@ -17,7 +17,7 @@ export class PostResolver {
         @Arg('id') id: number,
         @Ctx() {em}: MyContext): Promise<Post | null>
     {
-        return em.findOne(Post, { id });
+        return em.findOne(Post, { id , disabled:false, deleteAt: null});
     }
 
     @Mutation(() => Post)
@@ -37,7 +37,9 @@ export class PostResolver {
         @Arg('title') title: string,
         @Ctx() {em}: MyContext): Promise<Post | null>
     {
-        const post = await em.findOne(Post, {id});
+        const post = await em
+            .findOne(Post, {id,
+                deleteAt: null});
 
         if (!post) {
             return null;
@@ -50,25 +52,24 @@ export class PostResolver {
         return post;
     }
 
-    @Mutation(() => Boolean)
+    @Mutation(() => Post, {nullable: true})
     async deletePost(
         @Arg('id') id: number,
-        @Ctx() {em}: MyContext): Promise<boolean>
+        @Ctx() {em}: MyContext): Promise<Post | null>
     {
-        const post = await em.findOne(Post, {id});
+        const post = await em
+            .findOne(Post, {id,
+                disabled: false, deleteAt: null});
 
         if (!post) {
-            return false;
+            return null;
         }
 
-        try {
-            await em.nativeDelete(Post, { id });
-            return true;
-        } catch (err) {
-            return false;
-        }
+        post.disabled = true;
 
+        await em.persistAndFlush(post);
 
+        return post;
     }
 
 }
